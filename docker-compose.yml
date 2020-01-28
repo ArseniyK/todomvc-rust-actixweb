@@ -1,0 +1,43 @@
+---
+
+# Default compose file for development and production.
+# Should be used directly in development.
+# Automatically loads `docker-compose.override.yml` if it exists.
+# No extra steps required.
+# Should be used together with `docker/docker-compose.prod.yml`
+# in production.
+
+version: "3.6"
+services:
+  db:
+    image: "postgres:9.6.9-alpine"
+    restart: unless-stopped
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - webnet
+    env_file: ./config/.env
+
+  web:
+    <<: &web
+      build:
+        target: builder
+        context: .
+        dockerfile: ./docker/Dockerfile
+      depends_on:
+        - db
+      networks:
+        - webnet
+        - proxynet
+      env_file: ./config/.env
+    command: cargo watch -x run
+
+networks:
+  # Network for your proxy server and application to connect them,
+  # do not use it for anything else!
+  proxynet:
+  # Network for your internals, use it by default:
+  webnet:
+
+volumes:
+  pgdata:

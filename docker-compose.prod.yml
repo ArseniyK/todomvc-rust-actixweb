@@ -1,0 +1,22 @@
+---
+
+# This compose-file is production only. So, it should not be called directly.
+#
+# Instead, it should be a part of your deploy strategy.
+# This setup is supposed to be used with `docker-swarm`.
+# See `./docs/pages/template/production.rst` docs.
+
+version: "3.6"
+services:
+  web:
+    <<: &web
+      image:
+        "registry.gitlab.com/Arseniy Krasnov/shakuro_backend_test:latest"
+      build:
+        target: production_build
+        context: .
+        dockerfile: ./docker/Dockerfile
+      restart: unless-stopped
+    command: todomvc-rust-actixweb
+    expose:
+      - 8000
